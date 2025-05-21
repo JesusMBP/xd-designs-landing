@@ -7,12 +7,47 @@ export default function QuoteModal({ isOpen, onClose }) {
     email: '',
     projectPlan: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically handle the form submission
-    console.log('Form submitted:', formData);
-    onClose();
+    setIsSubmitting(true);
+    setSubmitStatus({ type: '', message: '' });
+
+    try {
+      const response = await fetch('/api/send-quote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitStatus({
+          type: 'success',
+          message: 'Your quote request has been sent successfully!'
+        });
+        // Reset form
+        setFormData({ name: '', email: '', projectPlan: '' });
+        // Close modal after 2 seconds
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'Failed to send quote request. Please try again.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -52,6 +87,17 @@ export default function QuoteModal({ isOpen, onClose }) {
             <p className="mt-2 text-slate-600">Tell us about your project</p>
           </div>
 
+          {/* Status message */}
+          {submitStatus.message && (
+            <div className={`mb-4 p-4 rounded-lg ${
+              submitStatus.type === 'success' 
+                ? 'bg-green-100 text-green-700' 
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {submitStatus.message}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
@@ -64,7 +110,8 @@ export default function QuoteModal({ isOpen, onClose }) {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition-colors"
+                disabled={isSubmitting}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition-colors disabled:opacity-50"
                 placeholder="Your name"
               />
             </div>
@@ -80,7 +127,8 @@ export default function QuoteModal({ isOpen, onClose }) {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition-colors"
+                disabled={isSubmitting}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition-colors disabled:opacity-50"
                 placeholder="your@email.com"
               />
             </div>
@@ -95,17 +143,29 @@ export default function QuoteModal({ isOpen, onClose }) {
                 value={formData.projectPlan}
                 onChange={handleChange}
                 required
+                disabled={isSubmitting}
                 rows="4"
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition-colors"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition-colors disabled:opacity-50"
                 placeholder="Tell us about your project..."
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-orange-400 text-slate-900 px-6 py-3 rounded-lg hover:bg-orange-500 transition-all duration-300 font-medium hover:scale-105 hover:shadow-lg"
+              disabled={isSubmitting}
+              className="w-full bg-orange-400 text-slate-900 px-6 py-3 rounded-lg hover:bg-orange-500 transition-all duration-300 font-medium hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit Quote Request
+              {isSubmitting ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Sending...
+                </span>
+              ) : (
+                'Submit Quote Request'
+              )}
             </button>
           </form>
         </div>
