@@ -23,6 +23,16 @@ export default function Header() {
     setIsVisible(true)
   }, [])
 
+  // Listen for quote modal open event
+  useEffect(() => {
+    const handleOpenQuoteModal = () => {
+      setIsQuoteModalOpen(true);
+    };
+
+    window.addEventListener('openQuoteModal', handleOpenQuoteModal);
+    return () => window.removeEventListener('openQuoteModal', handleOpenQuoteModal);
+  }, []);
+
   // Handle smooth scrolling
   const handleScrollToSection = (e, sectionId) => {
     e.preventDefault()
@@ -70,9 +80,6 @@ export default function Header() {
             <a href="#about" onClick={(e) => handleScrollToSection(e, 'about')} className="text-slate-200 hover:text-orange-400 transition-all duration-300 hover:scale-105">
               About
             </a>
-            <a href="#contact" onClick={(e) => handleScrollToSection(e, 'contact')} className="text-slate-200 hover:text-orange-400 transition-all duration-300 hover:scale-105">
-              Contact
-            </a>
           </nav>
           
           {/* CTA Button */}
@@ -111,9 +118,6 @@ export default function Header() {
             </a>
             <a href="#about" onClick={(e) => handleScrollToSection(e, 'about')} className="block px-3 py-2 text-slate-200 hover:text-orange-400 hover:bg-slate-800 rounded-md transition-all duration-300">
               About
-            </a>
-            <a href="#contact" onClick={(e) => handleScrollToSection(e, 'contact')} className="block px-3 py-2 text-slate-200 hover:text-orange-400 hover:bg-slate-800 rounded-md transition-all duration-300">
-              Contact
             </a>
             {/* CTA in mobile menu */}
             <div className="px-3 py-2">
