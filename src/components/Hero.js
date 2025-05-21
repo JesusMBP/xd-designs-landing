@@ -1,6 +1,5 @@
 "use client";
 import { useCallback } from 'react';
-import Image from 'next/image';
 
 export default function Hero() {
   const handleScrollToServices = useCallback((e) => {
@@ -49,13 +48,11 @@ export default function Hero() {
             </button>
           </div>
         </div>
-        <div className="md:w-1/2 relative h-[400px]">
-          <Image
-            src="/images/hero-illustration.svg"
-            alt="Software development illustration"
-            fill
-            className="object-contain"
-            priority
+        <div className="md:w-1/2">
+          <img 
+            src="/hero-image.svg" 
+            alt="Software development illustration" 
+            className="w-full h-auto"
           />
         </div>
       </div>
